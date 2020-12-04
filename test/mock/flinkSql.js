@@ -2,7 +2,7 @@ const sqlStrOne = `
 CREATE TABLE dm_t_uba_xsjyh_events (
     distinct_id VARCHAR AS distinct_id,
     event VARCHAR AS event,
-    od.time BIGINT AS oper_time,
+    time BIGINT AS oper_time,
     properties.password_type VARCHAR AS password_type,
     properties.source_page VARCHAR AS source_page,
     properties.is_success VARCHAR AS is_success,
@@ -254,44 +254,37 @@ CREATE TABLE dm_t_pecust_event_current (
 );
 `;
 const sqlStrThree = `
-CREATE TABLE dm_t_event_dep_property (
-    uuid DECIMAL,
-    cust_no VARCHAR,
-    ecif_cust_num VARCHAR,
-    tourist_flag INT,
-    is_tourist INT,
-    mobile_tel VARCHAR,
-    PRIMARY KEY (uuid),
-    PERIOD FOR SYSTEM_TIME
-) WITH (
-    type = 'elasticsearch6',
-    address = '10.102.0.32:24148,10.102.0.33:24148,10.102.0.34:24148',
-    estype = 'dm_t_event_dep_property',
-    cacheSize = '10000',
-    cacheTTLMs = '60000',
-    partitionedJoin = 'false',
-    parallelism = '1'
-);
+CREATE VIEW StockA11ParVauleAlertView
+AS
+SELECT
+    stock_code,
+    stock_type,
+    stock_name,
+    'A1-1-2' AS alert_no,
+    'AGG.VarStockCode' AS dm_src_info,
+    DATE_FORMAT(LOCALTIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+    AS dm_created_time,'RTDW' AS dm_created_by,
+    DATE_FORMAT(LOCALTIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+    AS dm_updated_time,'RTDW' AS dm_updated_by
+FROM VarStockCode
+WHERE stock_type IN ('SS') AND par_value NOT IN (0.5, 0.1, 1);
 `;
 const sqlStrFour = `
-CREATE TABLE dm_t_event_dep_property1 (
-    uuid DECIMAL,
-    cust_no VARCHAR,
-    ecif_cust_num VARCHAR,
-    tourist_flag INT,
-    is_tourist INT,
-    mobile_tel VARCHAR,
-    PRIMARY KEY (uuid),
-    PERIOD FOR SYSTEM_TIME
-) WITH (
-    type = 'elasticsearch6',
-    address = '10.102.0.32:24148,10.102.0.33:24148,10.102.0.34:24148',
-    estype = 'dm_t_event_dep_property',
-    cacheSize = '10000',
-    cacheTTLMs = '60000',
-    partitionedJoin = 'false',
-    parallelism = '1'
-);
+CREATE VIEW PtRealEntrustCommisionDiffView
+AS SELECT
+  entrust_date,
+  a.market_code,
+  CASE operation
+    WHEN 'INSERT' THEN commision
+    WHEN 'UPDATE' THEN (commision - before_commision)
+    ELSE 0
+  END AS commision_diff,
+  b.para_value
+FROM PtRealEntrustCurrencyAndParaTypeView a
+LEFT JOIN TbCurrencyPara b
+ON a.currency = b.currency AND 
+   a.paratype = b.paratype
+WHERE entrust_date = date_format(LOCALTIMESTAMP, 'yyyyMMdd');
 `;
 const sqlStrFive = `
 create view dm_t_xsjyh_events as
@@ -971,7 +964,6 @@ WHERE
 `;
 
 const allSqlStr = `
-${sqlStrOne}
 ${sqlStrTwo}
 ${sqlStrThree}
 ${sqlStrFour}
@@ -982,13 +974,13 @@ ${sqlStrEight}
 `;
 
 export default {
-    sqlStrOne, // - $ 符号后内容匹配不准确
-    sqlStrTwo,
-    sqlStrThree,
-    sqlStrFour,
-    sqlStrFive,
-    sqlStrSix,
-    sqlStrSeven,
-    sqlStrEight,
-    allSqlStr,
+    sqlStrOne, // - $ 符号后内容匹配不准确 以及 自定义字段与与定义的词法规则重复 也会匹配不准确
+    sqlStrTwo, // 111ms
+    sqlStrThree, // 177ms
+    sqlStrFour, // 106ms
+    sqlStrFive, // 2181ms
+    sqlStrSix, // 1627ms
+    sqlStrSeven, // 1269ms
+    sqlStrEight, // 121ms
+    allSqlStr, // 3661ms
 };
