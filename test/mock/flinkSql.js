@@ -6,7 +6,7 @@ CREATE TABLE dm_t_uba_xsjyh_events (
     properties.$model VARCHAR AS ods_model,
     properties.$app_version VARCHAR AS ods_app_version,
     properties.$os VARCHAR AS ods_os,
-    properties.$os_version VARCHAR AS ods_os_version,
+    properties.$os_version VARCHAR AS ods_os_version
 ) WITH (
     type = 'kafka10',
     bootstrapServers = '10.102.34.64:9092,10.102.34.65:9092,10.102.34.66:9092',
@@ -858,6 +858,7 @@ WHERE
 `;
 
 const allSqlStr = `
+${sqlStrOne}
 ${sqlStrTwo}
 ${sqlStrThree}
 ${sqlStrFour}
@@ -868,13 +869,13 @@ ${sqlStrEight}
 `;
 
 export default {
-    sqlStrOne, // - $ 符号后内容匹配不准确
-    sqlStrTwo, // 111ms
-    sqlStrThree, // 177ms
-    sqlStrFour, // 106ms
-    sqlStrFive, // 2181ms
-    sqlStrSix, // 1627ms
-    sqlStrSeven, // 1269ms
-    sqlStrEight, // 121ms
-    allSqlStr, // 3661ms
+    sqlStrOne, // 27ms
+    sqlStrTwo, // 119ms
+    sqlStrThree, // 250ms
+    sqlStrFour, // 152ms
+    sqlStrFive, // 3409ms
+    sqlStrSix, // 2686ms
+    sqlStrSeven, // 1883ms
+    sqlStrEight, // 235ms
+    allSqlStr, // 4657ms
 };
